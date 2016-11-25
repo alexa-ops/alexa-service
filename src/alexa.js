@@ -1,6 +1,7 @@
 'use strict'
 
-const responseService = require('./alexa/resposne-service');
+const responseService = require('./alexa/response-service');
+const sessionService = require('./alexa/session-service');
 const chaosService = require('./chaos-service');
 
 // Route the incoming request based on type (LaunchRequest, IntentRequest,
@@ -11,31 +12,27 @@ module.exports.handler = function (event, context, cb) {
     }
 
     if (event.session.new) {
-        onSessionStarted({
-            requestId: event.request.requestId
-        }, event.session);
+        sessionService.onStarted(event.request.requestId, event.session);
     }
 
-    if (event.request.type === "LaunchRequest") {
-        onLaunch(event.request, event.session, (err, sessionAttributes, speechletResponse) => {
-            cb(err, responseService.buildResponse(sessionAttributes, speechletResponse));
-        });
-    } else if (event.request.type === "IntentRequest") {
-        onIntent(event.request, event.session, (err, sessionAttributes, speechletResponse) => {
-            cb(err, responseService.buildResponse(sessionAttributes, speechletResponse));
-        });
-    } else if (event.request.type === "SessionEndedRequest") {
-        onSessionEnded(event.request, event.session);
-        cb(null, {});
+    switch(event.request.type) {
+        case 'LaunchRequest':
+            onLaunch(event.request, event.session, (err, sessionAttributes, speechletResponse) => {
+                cb(err, responseService.buildResponse(sessionAttributes, speechletResponse));
+            });
+            break;
+        case 'IntentRequest':
+            onIntent(event.request, event.session, (err, sessionAttributes, speechletResponse) => {
+                cb(err, responseService.buildResponse(sessionAttributes, speechletResponse));
+            });
+            break;
+        case 'SessionEndedRequest':
+            sessionService.handleEndRequest(event.request, event.session, cb);
+            break;
+        default:
+            cb(`Unknown request type ${event.request.type}`);
     }
 };
-
-/**
- * Called when the session starts.
- */
-function onSessionStarted(sessionStartedRequest, session) {
-    console.log("onSessionStarted requestId=" + sessionStartedRequest.requestId + ", sessionId=" + session.sessionId);
-}
 
 /**
  * Called when the user launches the skill without specifying what they want.
@@ -64,24 +61,13 @@ function onIntent(intentRequest, session, callback) {
     } else if ("AMAZON.HelpIntent" === intentName) {
         getHelp(callback);
     } else if ("AMAZON.StopIntent" === intentName || "AMAZON.CancelIntent" === intentName) {
-        handleSessionEndRequest(callback);
+        sessionService.handleEndRequest(callback);
     } else {
         throw "Invalid intent";
     }
 }
 
-/**
- * Called when the user ends the session.
- * Is not called when the skill returns shouldEndSession=true.
- */
-function onSessionEnded(sessionEndedRequest, session) {
-    console.log("onSessionEnded requestId=" + sessionEndedRequest.requestId +
-        ", sessionId=" + session.sessionId);
-    // Add cleanup logic here
-}
-
 // --------------- Functions that control the skill's behavior -----------------------
-
 function getWelcomeResponse(callback) {
     // If we wanted to initialize the session to have some attributes we could add those here.
     var sessionAttributes = {};
@@ -100,13 +86,6 @@ function getHelp(callback) {
     var shouldEndSession = false;
 
     callback(null, sessionAttributes, responseService.buildSpeechletResponse(cardTitle, speechOutput, repromptText, shouldEndSession));
-}
-
-function handleSessionEndRequest(callback) {
-    var cardTitle = "Session Ended";
-    var speechOutput = "Thank you for using the Alexa chaos monkey, Have a nice day and enjoy reinvent!";
-    var shouldEndSession = true;
-    callback(null, {}, responseService.buildSpeechletResponse(cardTitle, speechOutput, null, shouldEndSession));
 }
 
 function doKill(intent, session, callback) {

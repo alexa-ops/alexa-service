@@ -9,14 +9,8 @@ provider:
        Resource: '*'
 
 custom:
-  packageEnv:
-    fileName: .env-${opt:stage}
-
-plugins:
-  - serverless-plugin-package-dotenv-file
-  - serverless-offline
-  - serverless-run-function-plugin
-
+  chaosServiceName: chaos-service
+  chaosServiceLambdaPrefix: ${self:custom.chaosService}-${opt:stage}
 package:
   exclude:
     - .git/**
@@ -34,6 +28,9 @@ functions:
     handler: src/alexa.handler
     environment:
       ALEXA_APPLICATION_ID: amzn1.ask.skill.69483f2c-0154-4cf1-a9d9-f7b697c65a54
+      COUNT_LAMBDA: ${chaosServiceLambdaPrefix}-instanceCount
+      TERMINATE_LAMBDA: ${chaosServiceLambdaPrefix}-instanceTerminate
+      STOP_LAMBDA: ${chaosServiceLambdaPrefix}-instanceStop
 
 #resources:
 #  Resources:

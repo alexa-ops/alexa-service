@@ -1,7 +1,9 @@
 'use strict'
 //Loading AWS SDK libraries
 
-var AWS = require('aws-sdk');
+const AWS = require('aws-sdk');
+
+const chaosService = require('./chaos-service');
 
 // Route the incoming request based on type (LaunchRequest, IntentRequest,
 // etc.) The JSON body of the request is provided in the event parameter.
@@ -117,23 +119,12 @@ function doKill(intent, session, callback) {
     console.log("kill");
     var speechOutput = "Booooom";
 
-    var lambda = new AWS.Lambda({
-        region: 'us-east-1' //change to your region
-    });
-
-    lambda.invoke({
-        FunctionName: 'chaos-service-dev-instanceTerminate',
-        Payload: JSON.stringify({
-                count: 1
-            }) // pass params
-    }, function (error, data) {
-        if (error) {
-            return callback(error);
-        }
-
-        callback(null, sessionAttributes, buildSpeechletResponse(cardTitle, speechOutput, repromptText, shouldEndSession));
-    });
-
+    chaosService
+        .terminate({ count: 1 })
+        .then(result => {
+            callback(null, sessionAttributes, buildSpeechletResponse(cardTitle, speechOutput, repromptText, shouldEndSession))
+        })
+        .catch(err => callback(err));
 }
 
 function doCount(intent, session, callback) {
@@ -142,28 +133,19 @@ function doCount(intent, session, callback) {
     var shouldEndSession = true;
     var repromptText = "";
     console.log("kill");
-    var speechOutput = "";
 
-    var lambda = new AWS.Lambda({
-        region: 'us-east-1' //change to your region
-    });
-
-    lambda.invoke({
-        FunctionName: 'chaos-service-dev-instanceCount',
-        Payload: JSON.stringify({
-                count: 1
-            }) // pass params
-    }, function (error, data) {
-        if (error || !data.Payload) {
-            speechOutput = "Oh no, I encountered an error";
-            return callback(null, sessionAttributes, buildSpeechletResponse(cardTitle, speechOutput, repromptText, shouldEndSession));
-        }
-        const result = JSON.parse(data.Payload);
-        // parse stuff
-        var count = 3;
-        speechOutput = "The number of EC2 instances currently running is " + count;
-        callback(null, sessionAttributes, buildSpeechletResponse(cardTitle, speechOutput, repromptText, shouldEndSession));
-    });
+    chaosService
+        .terminate({ count: 1 })
+        .then(result => {
+            // parse stuff
+            const count = 3;
+            const speechOutput = "The number of EC2 instances currently running is " + count;
+            callback(null, sessionAttributes, buildSpeechletResponse(cardTitle, speechOutput, repromptText, shouldEndSession));
+        })
+        .catch(err => {
+            const speechOutput = "Oh no, I encountered an error";
+            callback(null, sessionAttributes, buildSpeechletResponse(cardTitle, speechOutput, repromptText, shouldEndSession));
+        });
 
 }
 

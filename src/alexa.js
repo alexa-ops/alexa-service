@@ -1,8 +1,6 @@
 'use strict'
-//Loading AWS SDK libraries
 
-const AWS = require('aws-sdk');
-
+const responseService = require('./alexa/resposne-service');
 const chaosService = require('./chaos-service');
 
 // Route the incoming request based on type (LaunchRequest, IntentRequest,
@@ -20,11 +18,11 @@ module.exports.handler = function (event, context, cb) {
 
     if (event.request.type === "LaunchRequest") {
         onLaunch(event.request, event.session, (err, sessionAttributes, speechletResponse) => {
-            cb(err, buildResponse(sessionAttributes, speechletResponse));
+            cb(err, responseService.buildResponse(sessionAttributes, speechletResponse));
         });
     } else if (event.request.type === "IntentRequest") {
         onIntent(event.request, event.session, (err, sessionAttributes, speechletResponse) => {
-            cb(err, buildResponse(sessionAttributes, speechletResponse));
+            cb(err, responseService.buildResponse(sessionAttributes, speechletResponse));
         });
     } else if (event.request.type === "SessionEndedRequest") {
         onSessionEnded(event.request, event.session);
@@ -91,7 +89,7 @@ function getWelcomeResponse(callback) {
     var speechOutput = "Welcome to reinvent 2016! I am Alexa and I've been infused with the power of chaos monkey. I can randomly kill E C 2 instances in my A W S test account. You can ask me to kill, crush or destroy. What would you like to do?";
     var repromptText = "You can ask me to kill, crush or destroy.";
     var shouldEndSession = false;
-    callback(null, sessionAttributes, buildSpeechletResponse(cardTitle, speechOutput, repromptText, shouldEndSession));
+    callback(null, sessionAttributes, responseService.buildSpeechletResponse(cardTitle, speechOutput, repromptText, shouldEndSession));
 }
 
 function getHelp(callback) {
@@ -101,14 +99,14 @@ function getHelp(callback) {
     var repromptText = "You can ask me to kill, crush or destroy.";
     var shouldEndSession = false;
 
-    callback(null, sessionAttributes, buildSpeechletResponse(cardTitle, speechOutput, repromptText, shouldEndSession));
+    callback(null, sessionAttributes, responseService.buildSpeechletResponse(cardTitle, speechOutput, repromptText, shouldEndSession));
 }
 
 function handleSessionEndRequest(callback) {
     var cardTitle = "Session Ended";
     var speechOutput = "Thank you for using the Alexa chaos monkey, Have a nice day and enjoy reinvent!";
     var shouldEndSession = true;
-    callback(null, {}, buildSpeechletResponse(cardTitle, speechOutput, null, shouldEndSession));
+    callback(null, {}, responseService.buildSpeechletResponse(cardTitle, speechOutput, null, shouldEndSession));
 }
 
 function doKill(intent, session, callback) {
@@ -122,7 +120,7 @@ function doKill(intent, session, callback) {
     chaosService
         .terminate({ count: 1 })
         .then(result => {
-            callback(null, sessionAttributes, buildSpeechletResponse(cardTitle, speechOutput, repromptText, shouldEndSession))
+            callback(null, sessionAttributes, responseService.buildSpeechletResponse(cardTitle, speechOutput, repromptText, shouldEndSession))
         })
         .catch(err => callback(err));
 }
@@ -140,41 +138,11 @@ function doCount(intent, session, callback) {
             // parse stuff
             const count = 3;
             const speechOutput = "The number of EC2 instances currently running is " + count;
-            callback(null, sessionAttributes, buildSpeechletResponse(cardTitle, speechOutput, repromptText, shouldEndSession));
+            callback(null, sessionAttributes, responseService.buildSpeechletResponse(cardTitle, speechOutput, repromptText, shouldEndSession));
         })
         .catch(err => {
             const speechOutput = "Oh no, I encountered an error";
-            callback(null, sessionAttributes, buildSpeechletResponse(cardTitle, speechOutput, repromptText, shouldEndSession));
+            callback(null, sessionAttributes, responseService.buildSpeechletResponse(cardTitle, speechOutput, repromptText, shouldEndSession));
         });
 
-}
-
-// --------------- Helpers that build all of the responses -----------------------
-function buildSpeechletResponse(title, output, repromptText, shouldEndSession) {
-    return {
-        outputSpeech: {
-            type: "PlainText",
-            text: output
-        },
-        card: {
-            type: "Simple",
-            title: title,
-            content: output
-        },
-        reprompt: {
-            outputSpeech: {
-                type: "PlainText",
-                text: repromptText
-            }
-        },
-        shouldEndSession: shouldEndSession
-    };
-}
-
-function buildResponse(sessionAttributes, speechletResponse) {
-    return {
-        version: "1.0",
-        sessionAttributes: sessionAttributes,
-        response: speechletResponse
-    };
 }

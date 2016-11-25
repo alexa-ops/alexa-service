@@ -1,0 +1,38 @@
+service: alexa-service
+provider:
+  name: aws
+  runtime: nodejs4.3
+  iamRoleStatements:
+    -  Effect: Allow
+       Action:
+         - 'lambda:InvokeFunction'
+       Resource: '*'
+
+custom:
+  packageEnv:
+    fileName: .env-${opt:stage}
+
+plugins:
+  - serverless-plugin-package-dotenv-file
+  - serverless-offline
+  - serverless-run-function-plugin
+
+package:
+  exclude:
+    - .git/**
+    - node_modules/**
+    - test/**
+    - '*'
+    - 'src/.node_version'
+    - 'src/package.json'
+    - 'src/yarn.lock'
+  include:
+    - 'src/**'
+
+functions:
+  alexa:
+    handler: src/alexa.handler
+
+#resources:
+#  Resources:
+#  Outputs:

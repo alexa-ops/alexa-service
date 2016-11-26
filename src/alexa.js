@@ -15,8 +15,8 @@ module.exports.handler = function (event, context, cb) {
 
     switch(event.request.type) {
         case 'LaunchRequest':
-            intentService.onLaunch(event.request, event.session, (err, sessionAttributes, speechletResponse) => {
-                cb(err, responseService.buildResponse(sessionAttributes, speechletResponse));
+            intentService.onLaunch(event.request, event.session, (err, response) => {
+                cb(err, response);
             });
             break;
         case 'IntentRequest':

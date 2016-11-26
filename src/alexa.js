@@ -1,8 +1,22 @@
 'use strict'
 
+const BbPromise = require('bluebird');
+
 const intentService = require('./alexa/intent-service');
-const responseService = require('./alexa/response-service');
 const sessionService = require('./alexa/session-service');
+
+const processEvent = (event) => {
+    switch(event.request.type) {
+        case 'LaunchRequest':
+            return intentService.onLaunch(event.request, event.session);
+        case 'IntentRequest':
+            return intentService.onIntent(event.request, event.session);
+        case 'SessionEndedRequest':
+            return intentService.onExit(event.request, event.session);
+        default:
+            return BbPromise.reject(new Error(`Unknown request type ${event.request.type}`));
+    }
+}
 
 module.exports.handler = function (event, context, cb) {
     if (event.session.application.applicationId !== process.env.ALEXA_APPLICATION_ID) {
@@ -13,21 +27,7 @@ module.exports.handler = function (event, context, cb) {
         sessionService.onStarted(event.request.requestId, event.session);
     }
 
-    switch(event.request.type) {
-        case 'LaunchRequest':
-            intentService.onLaunch(event.request, event.session, (err, response) => {
-                cb(err, response);
-            });
-            break;
-        case 'IntentRequest':
-            intentService.onIntent(event.request, event.session, (err, sessionAttributes, speechletResponse) => {
-                cb(err, responseService.buildResponse(sessionAttributes, speechletResponse));
-            });
-            break;
-        case 'SessionEndedRequest':
-            sessionService.handleEndRequest(event.request, event.session, cb);
-            break;
-        default:
-            cb(`Unknown request type ${event.request.type}`);
-    }
+    processEvent(event)
+        .then(result => cb(null, result))
+        .catch(err => cb(err));
 };

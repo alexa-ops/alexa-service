@@ -23,7 +23,7 @@ const handleEndRequest = (callback) => {
 //     // Add cleanup logic here
 // }
 
-module.export = {
+module.exports = {
     onStarted,
     handleEndRequest
 }

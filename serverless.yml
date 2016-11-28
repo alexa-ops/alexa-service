@@ -9,28 +9,30 @@ provider:
        Resource: '*'
 
 custom:
-  chaosServiceName: chaos-service
-  chaosServiceLambdaPrefix: ${self:custom.chaosService}-${opt:stage}
+  chaosService:
+    name: chaos-service
+    lambdaPrefix: ${self:custom.chaosService.name}-${opt:stage}
 package:
   exclude:
     - .git/**
+    - coverage/**
     - node_modules/**
     - test/**
-    - '*'
-    - 'src/.node_version'
-    - 'src/package.json'
-    - 'src/yarn.lock'
+    - "*"
+    - src/.node_version
+    - src/package.json
+    - src/yarn.lock
   include:
-    - 'src/**'
+    - src/**
 
 functions:
   alexa:
     handler: src/alexa.handler
     environment:
       ALEXA_APPLICATION_ID: amzn1.ask.skill.69483f2c-0154-4cf1-a9d9-f7b697c65a54
-      COUNT_LAMBDA: ${chaosServiceLambdaPrefix}-instanceCount
-      TERMINATE_LAMBDA: ${chaosServiceLambdaPrefix}-instanceTerminate
-      STOP_LAMBDA: ${chaosServiceLambdaPrefix}-instanceStop
+      COUNT_LAMBDA: ${self:custom.chaosService.lambdaPrefix}-instanceCount
+      TERMINATE_LAMBDA: ${self:custom.chaosService.lambdaPrefix}-instanceTerminate
+      STOP_LAMBDA: ${self:custom.chaosService.lambdaPrefix}-instanceStop
 
 #resources:
 #  Resources:

@@ -11,17 +11,17 @@ const getTextResult = (text) => ({
     shouldEndSession: true
 });
 
-const getTotalResult = (result) => getTextResult(
-    `The number of EC2 instances currently is ${result.total}`
+const getTotalResult = (total) => getTextResult(
+    `The number of E C 2 instances currently is ${total}`
 );
 
 const getServerlessResult = () => getTextResult(
-    `There are EC2 instances running.
+    `You have no E C 2 instances running.
     Congratulations, you are now Serverless.`
 );
 
 const getRunningResult = (count) => getTextResult(
-    `The number of EC2 instances currently running is ${count}`
+    `The number of E C 2 instances currently running is ${count}`
 );
 
 const getErrorResult = () => getTextResult(
@@ -32,7 +32,9 @@ module.exports = () => chaosService
     .countBy({ selector: 'state' })
     .then(result => {
         if(!result.groups) {
-            return getTotalResult(result);
+            return result.total > 0 ?
+                    getTotalResult(result.total) :
+                    getServerlessResult()
         }
 
         // maybe can be done by pickBy ??
@@ -41,8 +43,8 @@ module.exports = () => chaosService
         const runningCount = runningGroup ? runningGroup.value : 0;
 
         return runningCount > 0 ?
-            getRunningResult(runningCount) :
-            getServerlessResult();
+                getRunningResult(runningCount) :
+                getServerlessResult()
     })
     .catch(err => {
         console.error(err);

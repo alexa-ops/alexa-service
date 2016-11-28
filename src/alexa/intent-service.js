@@ -4,9 +4,9 @@ const responseService = require('./response-service');
 
 const intentConfig = require('./intents.json');
 
-const runIntent = (intentMapping) => {
-    const intent = require(`./intents/${intentMapping}`);
-    return intent().then(result => responseService.buildResponse(
+const runIntent = (intentMapping, intent) => {
+    const action = require(`./intents/${intentMapping}`);
+    return action(intent).then(result => responseService.buildResponse(
         result.sessionAttributes,
         result.cardTitle,
         result.speechOutput,
@@ -26,10 +26,12 @@ function onIntent(intentRequest, session) {
     const intent = intentRequest.intent;
     const intentName = intentRequest.intent.name;
 
+    console.log(`Running ${intentName}`, intent);
+
     const intentMapping = intentConfig[intentName];
 
     if(intentMapping) {
-        return runIntent(intentMapping)
+        return runIntent(intentMapping, intent)
     }
 
     throw new Error(`Invalid intent ${intentName}`, intent);

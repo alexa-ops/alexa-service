@@ -1,6 +1,7 @@
 {
   "RandomKill": "kill",
   "CountInstances": "count",
+  "StartInstances": "start",
   "AMAZON.HelpIntent": "help",
   "AMAZON.StopIntent": "end",
   "AMAZON.CancelIntent": "end"

@@ -8,12 +8,12 @@ module.exports = (intent) => {
     const count = countSlot ? countSlot.value : 1;
 
     return chaosService
-        .terminate({ count })
+        .start({ count, size: 't2.nano' })
         .then(() => ({
             sessionAttributes: {},
             cardTitle: "Kill",
             speechOutput:
-                `Booooom`,
+                `I started ${count} ${count === 1 ? 'server' : 'servers'} for you.`,
             repromptText: "",
             shouldEndSession: true
         }));

@@ -30,11 +30,13 @@ const lambdaResolver = (lambdaName) => (event) => invokeLambda(lambdaName, event
                 .then((data) => JSON.parse(data.Payload));
 
 const countBy = lambdaResolver(process.env.COUNT_LAMBDA);
+const start = lambdaResolver(process.env.START_LAMBDA);
 const terminate = lambdaResolver(process.env.TERMINATE_LAMBDA);
 const stop = lambdaResolver(process.env.STOP_LAMBDA);
 
 module.exports = {
     countBy,
+    start,
     terminate,
     stop,
 }

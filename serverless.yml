@@ -31,6 +31,7 @@ functions:
     environment:
       ALEXA_APPLICATION_ID: amzn1.ask.skill.69483f2c-0154-4cf1-a9d9-f7b697c65a54
       COUNT_LAMBDA: ${self:custom.chaosService.lambdaPrefix}-instanceCount
+      START_LAMBDA: ${self:custom.chaosService.lambdaPrefix}-instanceStart
       TERMINATE_LAMBDA: ${self:custom.chaosService.lambdaPrefix}-instanceTerminate
       STOP_LAMBDA: ${self:custom.chaosService.lambdaPrefix}-instanceStop
 

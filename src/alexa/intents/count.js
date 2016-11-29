@@ -38,7 +38,7 @@ module.exports = () => chaosService
         }
 
         // maybe can be done by pickBy ??
-        const runningGroup = _.first(result.groups, (g) => g.key === 'running');
+        const runningGroup = _.find(result.groups, (g) => g.key === 'running');
 
         const runningCount = runningGroup ? runningGroup.value : 0;
 

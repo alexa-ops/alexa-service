@@ -1,0 +1,27 @@
+{
+  "intents": [
+    {
+      "intent": "RandomKill",
+      "slots": [{
+      	"name": "Count",
+      	"type": "AMAZON.NUMBER"
+      }]
+    },
+    {
+      "intent": "CountInstances"
+    },
+    {
+      "intent": "StartInstances",
+      "slots": [{
+      	"name": "Count",
+      	"type": "AMAZON.NUMBER"
+      }]
+    },
+    {
+      "intent": "AMAZON.HelpIntent"
+    },
+    {
+      "intent": "AMAZON.StopIntent"
+    }
+  ]
+}

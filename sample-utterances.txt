@@ -1,11 +1,29 @@
 RandomKill run chaos monkey
 RandomKill chaos monkey
+RandomKill kill {Count} server
 RandomKill kill {Count} servers
+RandomKill kill {Count} instance
+RandomKill kill {Count} instances
+RandomKill terminate {Count} server
 RandomKill terminate {Count} servers
-CountInstances how many server are running
 CountInstances how many servers are running
 CountInstances how many instances are running
+CountInstances how many e c two instances are running
 StartInstances start a server
+StartInstances start an instance
+StartInstances start an e c two instance
 StartInstances run a server
+StartInstances run an instance
+StartInstances run an e c two instance
+StartInstances start {Count} server
 StartInstances start {Count} servers
+StartInstances start {Count} instance
+StartInstances start {Count} instances
+StartInstances start {Count} e c two instance
+StartInstances start {Count} e c two instances
+StartInstances run {Count} server
 StartInstances run {Count} servers
+StartInstances run {Count} instance
+StartInstances run {Count} instances
+StartInstances run {Count} e c two instance
+StartInstances run {Count} e c two instances
